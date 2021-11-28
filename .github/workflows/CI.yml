@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+env:
+  REGISTRY: ghcr.io
+  BuildAction: Paradox98/docker-fpm/.github/workflows/test.yml@test1
+jobs:
+  build-ubuntu-18_04:
+    uses: Paradox98/docker-fpm/.github/workflows/build_push_image.yml@test1
+    with:
+      distro: ubuntu
+      version: 18.04
+  build-ubuntu-16_04:
+    uses: Paradox98/docker-fpm/.github/workflows/build_push_image.yml@test1
+    with:
+      distro: ubuntu
+      version: 16.04

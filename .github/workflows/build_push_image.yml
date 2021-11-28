@@ -3,30 +3,34 @@
 # 单独的服务条款、隐私政策和支持
 # 文档管理。
 
-name: CI
+name: build-and-push-image
 
 on:
-  push:
-env:
-  REGISTRY: ghcr.io
-  #${{ github.repository }}
-
+  workflow_call:
+    inputs:
+      distro:
+        description: 'base image of docker image'
+        default: 'ubuntu'
+        required: false
+        type: string
+      version:
+        description: 'base image version of docker image'
+        default: '18.04'
+        required: false
+        type: string
+      REGISTRY:
+        description: 'docker image registry'
+        default: 'ghcr.io'
+        required: false
+        type: string
 jobs:
   build-and-push-image:
     runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-       # ubuntu_version: [14.04, 18.04, 16.04, 20.04]
-        include:
-         - distro: ubuntu
-           version: 18.04
-         - distro: ubuntu
-           version: 16.04
     permissions:
       contents: read
       packages: write
     env:
-      IMAGE_NAME: fpm-${{ matrix.distro }}
+      IMAGE_NAME: fpm-${{ inputs.distro }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -34,22 +38,20 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ inputs.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+      - run: echo ${{ inputs.distro }} xxx ${{ inputs.version }} xxx ${{ inputs.REGISTRY }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v3.6.0
         with:
-          images: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
-          tags: ${{ matrix.version }}
-          labels: ${{ matrix.version }}
-
+          images: ${{ inputs.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
+          tags: type=raw,value=${{ inputs.version }}
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: ./${{ matrix.distro }}/${{ matrix.version }}/
+          context: ./${{ inputs.distro }}/${{ inputs.version }}/
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
