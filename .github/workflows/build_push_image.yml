@@ -34,7 +34,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
@@ -49,7 +48,7 @@ jobs:
           tags: type=raw,value=${{ inputs.version }}
       - name: test
         run: docker images
-      - run: docker run --rm -d ${{ inputs.REGISTRY }}/${{ github.actor,, }}/${{ env.IMAGE_NAME }}:${{ inputs.version }} fpm --version
+      - run: docker run --rm -d ${{ steps.meta.outputs.tags }} fpm --version
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
