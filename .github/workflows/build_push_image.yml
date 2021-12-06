@@ -46,9 +46,6 @@ jobs:
         with:
           images: ${{ inputs.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ inputs.version }}
-      - name: test
-        run: docker images
-      - run: docker run --rm -d ${{ steps.meta.outputs.tags }} fpm --version
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
@@ -56,3 +53,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: test
+        run: docker images
+      - run: docker run --rm -d ${{ steps.meta.outputs.tags }} fpm --version
