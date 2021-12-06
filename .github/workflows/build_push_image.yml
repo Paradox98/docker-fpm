@@ -41,13 +41,16 @@ jobs:
           registry: ${{ inputs.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo ${{ inputs.distro }} xxx ${{ inputs.version }} xxx ${{ inputs.REGISTRY }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v3.6.0
         with:
           images: ${{ inputs.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ inputs.version }}
+      - name: test
+        run: |
+          docker images | grep ${{ env.IMAGE_NAME }}
+          docker run --rm -d ${{ inputs.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ inputs.version }} fpm --version
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
