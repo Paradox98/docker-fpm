@@ -11,6 +11,7 @@ RUN set -x \
 		ca-certificates \
 		libffi-dev \
 		ruby-ffi \
+		rpm \
 	&& gem install fpm \
 	&& mkdir /src/
 
